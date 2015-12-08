@@ -21,12 +21,10 @@ public class TextTemplateArtifact extends JAXBArtifact<TextTemplateConfiguration
 	public static final String RESULT = "result";
 	public static final String CONTENT_TYPE = "contentType";
 	
-	private Repository repository;
 	private Structure input, output;
 
 	public TextTemplateArtifact(String id, ResourceContainer<?> directory, Repository repository) {
-		super(id, directory, "text-template.xml", TextTemplateConfiguration.class);
-		this.repository = repository;
+		super(id, directory, repository, "text-template.xml", TextTemplateConfiguration.class);
 	}
 
 	@Override
@@ -60,10 +58,6 @@ public class TextTemplateArtifact extends JAXBArtifact<TextTemplateConfiguration
 	@Override
 	public Set<String> getReferences() {
 		return null;
-	}
-
-	public Repository getRepository() {
-		return repository;
 	}
 
 	private Structure getInput() {
