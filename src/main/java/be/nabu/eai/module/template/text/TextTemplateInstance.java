@@ -29,7 +29,7 @@ public class TextTemplateInstance implements ServiceInstance {
 	private Parser parser;
 
 	public TextTemplateInstance(TextTemplateArtifact template) throws IOException {
-		this.provider = new GlueParserProvider(new ServiceMethodProvider(template.getRepository(), template.getRepository(), null));
+		this.provider = new GlueParserProvider(new ServiceMethodProvider(template.getRepository(), template.getRepository()));
 		this.template = template;
 		initialize();
 	}
