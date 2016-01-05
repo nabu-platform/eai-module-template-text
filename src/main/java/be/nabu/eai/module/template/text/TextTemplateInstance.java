@@ -55,7 +55,7 @@ public class TextTemplateInstance implements ServiceInstance {
 				repository.refresh();
 			}
 			CombinedExecutionContextImpl context = new CombinedExecutionContextImpl(executionContext, new SimpleExecutionEnvironment(template.getId()), new EnvironmentLabelEvaluator(null));
-			ComplexContent variables = (ComplexContent) input.get(TextTemplateArtifact.PARAMETERS);
+			ComplexContent variables = input == null ? null : (ComplexContent) input.get(TextTemplateArtifact.PARAMETERS);
 			if (variables != null) {
 				for (Element<?> element : TypeUtils.getAllChildren(variables.getType())) {
 					context.getPipeline().put(element.getName(), variables.get(element.getName()));
