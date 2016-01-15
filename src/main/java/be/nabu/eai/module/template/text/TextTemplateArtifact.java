@@ -13,11 +13,14 @@ import be.nabu.libs.types.SimpleTypeWrapperFactory;
 import be.nabu.libs.types.api.ComplexType;
 import be.nabu.libs.types.base.ComplexElementImpl;
 import be.nabu.libs.types.base.SimpleElementImpl;
+import be.nabu.libs.types.base.ValueImpl;
+import be.nabu.libs.types.properties.MinOccursProperty;
 import be.nabu.libs.types.structure.Structure;
 
 public class TextTemplateArtifact extends JAXBArtifact<TextTemplateConfiguration> implements DefinedService {
 
 	public static final String PARAMETERS = "parameters";
+	public static final String LANGUAGE = "language";
 	public static final String RESULT = "result";
 	public static final String CONTENT_TYPE = "contentType";
 	
@@ -67,6 +70,7 @@ public class TextTemplateArtifact extends JAXBArtifact<TextTemplateConfiguration
 					try {
 						Structure input = new Structure();
 						input.setName("input");
+						input.add(new SimpleElementImpl<String>(LANGUAGE, SimpleTypeWrapperFactory.getInstance().getWrapper().wrap(String.class), input, new ValueImpl<Integer>(MinOccursProperty.getInstance(), 0)));
 						if (getConfiguration().getInput() != null) {
 							input.add(new ComplexElementImpl(PARAMETERS, (ComplexType) getConfiguration().getInput(), input));
 						}

@@ -4,17 +4,28 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
+import be.nabu.eai.api.InterfaceFilter;
 import be.nabu.eai.repository.jaxb.ArtifactXMLAdapter;
+import be.nabu.libs.services.api.DefinedService;
 import be.nabu.libs.types.api.DefinedType;
 
 @XmlRootElement(name = "textTemplate")
-@XmlType(propOrder = { "contentType", "input", "allowNull", "content" })
+@XmlType(propOrder = { "contentType", "input", "allowNull", "translationService", "content" })
 public class TextTemplateConfiguration {
 	private String contentType;
 	private String content;
 	private DefinedType input;
 	private Boolean allowNull;
+	private DefinedService translationService;
 	
+	@XmlJavaTypeAdapter(value = ArtifactXMLAdapter.class)
+	@InterfaceFilter(implement = "be.nabu.eai.repository.api.Translator.translate")
+	public DefinedService getTranslationService() {
+		return translationService;
+	}
+	public void setTranslationService(DefinedService translationService) {
+		this.translationService = translationService;
+	}
 	public String getContentType() {
 		return contentType;
 	}

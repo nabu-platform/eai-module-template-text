@@ -7,6 +7,7 @@ import be.nabu.eai.repository.EAIResourceRepository;
 import be.nabu.glue.MultipleRepository;
 import be.nabu.glue.api.Parser;
 import be.nabu.glue.impl.EnvironmentLabelEvaluator;
+import be.nabu.glue.impl.ImperativeSubstitutor;
 import be.nabu.glue.impl.SimpleExecutionEnvironment;
 import be.nabu.glue.impl.parsers.GlueParserProvider;
 import be.nabu.glue.repositories.ScannableScriptRepository;
@@ -61,9 +62,16 @@ public class TextTemplateInstance implements ServiceInstance {
 					context.getPipeline().put(element.getName(), variables.get(element.getName()));
 				}
 			}
-			String substitute = parser.substitute(template.getConfiguration().getContent(), context, template.getConfiguration().getAllowNull() != null && template.getConfiguration().getAllowNull());
+			String content = template.getConfiguration().getContent();
+			boolean allowNull = template.getConfiguration().getAllowNull() != null && template.getConfiguration().getAllowNull();
+			if (template.getConfiguration().getTranslationService() != null) {
+				String language = (String) input.get(TextTemplateArtifact.LANGUAGE);
+				ImperativeSubstitutor imperativeSubstitutor = new be.nabu.glue.impl.ImperativeSubstitutor("%", template.getConfiguration().getTranslationService().getId() + "('" + template.getId() + "', '${value}', " + (language == null ? "null" : "'" + language + "'") + ")/translation");
+				content = imperativeSubstitutor.substitute(content, context, allowNull);
+			}
+			content = parser.substitute(content, context, allowNull);
 			ComplexContent output = template.getServiceInterface().getOutputDefinition().newInstance();
-			output.set(TextTemplateArtifact.RESULT, substitute);
+			output.set(TextTemplateArtifact.RESULT, content);
 			output.set(TextTemplateArtifact.CONTENT_TYPE, template.getConfiguration().getContentType() != null ? template.getConfiguration().getContentType() : "text/plain");
 			return output;
 		}
