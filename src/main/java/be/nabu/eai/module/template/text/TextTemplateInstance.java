@@ -14,6 +14,7 @@ import be.nabu.glue.repositories.ScannableScriptRepository;
 import be.nabu.glue.services.CombinedExecutionContextImpl;
 import be.nabu.glue.services.ServiceMethodProvider;
 import be.nabu.libs.resources.api.ResourceContainer;
+import be.nabu.libs.services.api.DefinedService;
 import be.nabu.libs.services.api.ExecutionContext;
 import be.nabu.libs.services.api.Service;
 import be.nabu.libs.services.api.ServiceException;
@@ -64,10 +65,15 @@ public class TextTemplateInstance implements ServiceInstance {
 			}
 			String content = template.getConfiguration().getContent();
 			boolean allowNull = template.getConfiguration().getAllowNull() != null && template.getConfiguration().getAllowNull();
-			if (template.getConfiguration().getTranslationService() != null) {
+			String translationServiceId = (String) input.get(TextTemplateArtifact.TRANSLATION_SERVICE);
+			DefinedService translationService = translationServiceId == null ? template.getConfiguration().getTranslationService() : executionContext.getServiceContext().getResolver(DefinedService.class).resolve(translationServiceId);
+			if (translationService != null) {
 				String language = (String) input.get(TextTemplateArtifact.LANGUAGE);
 				ImperativeSubstitutor imperativeSubstitutor = new be.nabu.glue.impl.ImperativeSubstitutor("%", template.getConfiguration().getTranslationService().getId() + "(\"template:" + template.getId() + "\", \"${value}\", " + (language == null ? "null" : "\"" + language + "\"") + ")/translation");
 				content = imperativeSubstitutor.substitute(content, context, allowNull);
+			}
+			else if (translationServiceId != null) {
+				throw new IllegalArgumentException("Can not find the translation service: " + translationServiceId);
 			}
 			content = parser.substitute(content, context, allowNull);
 			ComplexContent output = template.getServiceInterface().getOutputDefinition().newInstance();

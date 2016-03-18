@@ -21,6 +21,7 @@ public class TextTemplateArtifact extends JAXBArtifact<TextTemplateConfiguration
 
 	public static final String PARAMETERS = "parameters";
 	public static final String LANGUAGE = "language";
+	public static final String TRANSLATION_SERVICE = "translationService";
 	public static final String RESULT = "result";
 	public static final String CONTENT_TYPE = "contentType";
 	
@@ -71,6 +72,7 @@ public class TextTemplateArtifact extends JAXBArtifact<TextTemplateConfiguration
 						Structure input = new Structure();
 						input.setName("input");
 						input.add(new SimpleElementImpl<String>(LANGUAGE, SimpleTypeWrapperFactory.getInstance().getWrapper().wrap(String.class), input, new ValueImpl<Integer>(MinOccursProperty.getInstance(), 0)));
+						input.add(new SimpleElementImpl<String>(TRANSLATION_SERVICE, SimpleTypeWrapperFactory.getInstance().getWrapper().wrap(String.class), input, new ValueImpl<Integer>(MinOccursProperty.getInstance(), 0)));
 						if (getConfiguration().getInput() != null) {
 							input.add(new ComplexElementImpl(PARAMETERS, (ComplexType) getConfiguration().getInput(), input));
 						}
