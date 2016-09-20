@@ -69,7 +69,7 @@ public class TextTemplateInstance implements ServiceInstance {
 			DefinedService translationService = translationServiceId == null ? template.getConfiguration().getTranslationService() : executionContext.getServiceContext().getResolver(DefinedService.class).resolve(translationServiceId);
 			if (translationService != null) {
 				String language = (String) input.get(TextTemplateArtifact.LANGUAGE);
-				ImperativeSubstitutor imperativeSubstitutor = new be.nabu.glue.impl.ImperativeSubstitutor("%", template.getConfiguration().getTranslationService().getId() + "(\"template:" + template.getId() + "\", \"${value}\", " + (language == null ? "null" : "\"" + language + "\"") + ")/translation");
+				ImperativeSubstitutor imperativeSubstitutor = new be.nabu.glue.impl.ImperativeSubstitutor("%", "template(" + template.getConfiguration().getTranslationService().getId() + "(\"template:" + template.getId() + "\", \"${value}\", " + (language == null ? "null" : "\"" + language + "\"") + ")/translation)");
 				content = imperativeSubstitutor.substitute(content, context, allowNull);
 			}
 			else if (translationServiceId != null) {
