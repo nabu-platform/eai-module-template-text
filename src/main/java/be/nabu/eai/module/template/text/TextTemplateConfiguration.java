@@ -5,6 +5,7 @@ import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import be.nabu.eai.api.InterfaceFilter;
+import be.nabu.eai.api.LargeText;
 import be.nabu.eai.repository.jaxb.ArtifactXMLAdapter;
 import be.nabu.libs.services.api.DefinedService;
 import be.nabu.libs.types.api.DefinedType;
@@ -26,18 +27,22 @@ public class TextTemplateConfiguration {
 	public void setTranslationService(DefinedService translationService) {
 		this.translationService = translationService;
 	}
+	
 	public String getContentType() {
 		return contentType;
 	}
 	public void setContentType(String contentType) {
 		this.contentType = contentType;
 	}
+	
+	@LargeText
 	public String getContent() {
 		return content;
 	}
 	public void setContent(String content) {
 		this.content = content;
 	}
+	
 	@XmlJavaTypeAdapter(value = ArtifactXMLAdapter.class)
 	public DefinedType getInput() {
 		return input;
@@ -45,6 +50,7 @@ public class TextTemplateConfiguration {
 	public void setInput(DefinedType input) {
 		this.input = input;
 	}
+	
 	public Boolean getAllowNull() {
 		return allowNull;
 	}
