@@ -2,6 +2,7 @@ package be.nabu.eai.module.template.text;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.HashMap;
 
 import be.nabu.eai.repository.EAIResourceRepository;
 import be.nabu.glue.api.Parser;
@@ -12,7 +13,9 @@ import be.nabu.glue.impl.ImperativeSubstitutor;
 import be.nabu.glue.impl.SimpleExecutionEnvironment;
 import be.nabu.glue.services.CombinedExecutionContextImpl;
 import be.nabu.glue.services.ServiceMethodProvider;
+import be.nabu.glue.utils.DynamicScript;
 import be.nabu.glue.utils.MultipleRepository;
+import be.nabu.glue.utils.ScriptRuntime;
 import be.nabu.libs.resources.api.ResourceContainer;
 import be.nabu.libs.services.api.DefinedService;
 import be.nabu.libs.services.api.ExecutionContext;
@@ -65,21 +68,30 @@ public class TextTemplateInstance implements ServiceInstance {
 			}
 			String content = template.getConfiguration().getContent();
 			boolean allowNull = template.getConfiguration().getAllowNull() != null && template.getConfiguration().getAllowNull();
-			String translationServiceId = (String) input.get(TextTemplateArtifact.TRANSLATION_SERVICE);
+			String translationServiceId = input == null ? null : (String) input.get(TextTemplateArtifact.TRANSLATION_SERVICE);
 			DefinedService translationService = translationServiceId == null ? template.getConfiguration().getTranslationService() : executionContext.getServiceContext().getResolver(DefinedService.class).resolve(translationServiceId);
-			if (translationService != null) {
-				String language = (String) input.get(TextTemplateArtifact.LANGUAGE);
-				ImperativeSubstitutor imperativeSubstitutor = new be.nabu.glue.impl.ImperativeSubstitutor("%", "template(" + template.getConfiguration().getTranslationService().getId() + "(\"template:" + template.getId() + "\", \"${value}\", " + (language == null ? "null" : "\"" + language + "\"") + ")/translation)");
-				content = imperativeSubstitutor.substitute(content, context, allowNull);
+			
+			ScriptRuntime runtime = new ScriptRuntime(new DynamicScript(null, parser), context, new HashMap<String, Object>());
+			runtime.registerInThread();
+			
+			try {
+				if (translationService != null) {
+					String language = input == null ? null : (String) input.get(TextTemplateArtifact.LANGUAGE);
+					ImperativeSubstitutor imperativeSubstitutor = new be.nabu.glue.impl.ImperativeSubstitutor("%", "template(" + template.getConfiguration().getTranslationService().getId() + "(\"template:" + template.getId() + "\", \"${value}\", " + (language == null ? "null" : "\"" + language + "\"") + ")/translation)");
+					content = imperativeSubstitutor.substitute(content, context, allowNull);
+				}
+				else if (translationServiceId != null) {
+					throw new IllegalArgumentException("Can not find the translation service: " + translationServiceId);
+				}
+				content = parser.substitute(content, context, allowNull);
+				ComplexContent output = template.getServiceInterface().getOutputDefinition().newInstance();
+				output.set(TextTemplateArtifact.RESULT, content);
+				output.set(TextTemplateArtifact.CONTENT_TYPE, template.getConfiguration().getContentType() != null ? template.getConfiguration().getContentType() : "text/plain");
+				return output;
 			}
-			else if (translationServiceId != null) {
-				throw new IllegalArgumentException("Can not find the translation service: " + translationServiceId);
+			finally {
+				runtime.unregisterInThread();
 			}
-			content = parser.substitute(content, context, allowNull);
-			ComplexContent output = template.getServiceInterface().getOutputDefinition().newInstance();
-			output.set(TextTemplateArtifact.RESULT, content);
-			output.set(TextTemplateArtifact.CONTENT_TYPE, template.getConfiguration().getContentType() != null ? template.getConfiguration().getContentType() : "text/plain");
-			return output;
 		}
 		catch (Exception e) {
 			throw new ServiceException(e);
