@@ -71,6 +71,7 @@ public class TextTemplateInstance implements ServiceInstance {
 			String translationServiceId = input == null ? null : (String) input.get(TextTemplateArtifact.TRANSLATION_SERVICE);
 			DefinedService translationService = translationServiceId == null ? template.getConfiguration().getTranslationService() : executionContext.getServiceContext().getResolver(DefinedService.class).resolve(translationServiceId);
 			
+			ScriptRuntime originalRuntime = ScriptRuntime.getRuntime();
 			ScriptRuntime runtime = new ScriptRuntime(new DynamicScript(null, parser), context, new HashMap<String, Object>());
 			runtime.registerInThread();
 			
@@ -91,6 +92,9 @@ public class TextTemplateInstance implements ServiceInstance {
 			}
 			finally {
 				runtime.unregisterInThread();
+				if (originalRuntime != null) {
+					originalRuntime.registerInThread();
+				}
 			}
 		}
 		catch (Exception e) {
